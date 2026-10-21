@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b16">
+<title>PromptVerse AI | Trending Prompts</title>
+<style>
+:root {
+  --bg:#090b16; --panel:#131729; --purple:#8b5cf6;
+  --cyan:#4de1e1; --text:#f5f5ff; --muted:#a5acc4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans Bengali",sans-serif}
+header{padding:20px 6%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #242941}
+.logo{font-size:23px;font-weight:800}
+.logo span{color:var(--cyan)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px 17px;background:var(--purple);color:white;font-weight:700}
+button:hover{opacity:.86}
+.hero{text-align:center;padding:65px 20px 38px;background:radial-gradient(ellipse at top,#29204c 0%,#090b16 68%)}
+.hero h1{font-size:clamp(30px,5vw,52px);margin:10px 0}
+.gradient{background:linear-gradient(90deg,#a78bfa,#4de1e1);color:transparent;background-clip:text}
+.hero p{color:var(--muted);line-height:1.8}
+.wrap{max-width:1150px;margin:auto;padding:24px 18px}
+.search{width:100%;padding:16px;background:var(--panel);border:1px solid #30364f;border-radius:12px;color:white;margin-bottom:20px}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:25px}
+.filters button{background:#1a2035;border:1px solid #30364f}
+.filters button.active{background:var(--purple)}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:25px 0}
+.heading h2{font-size:23px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px}
+.card{background:var(--panel);border:1px solid #272d45;border-radius:16px;overflow:hidden}
+.preview{height:180px;background:linear-gradient(135deg,#29204c,#123344);display:flex;align-items:center;justify-content:center;font-size:55px}
+.preview img{width:100%;height:100%;object-fit:cover}
+.content{padding:17px}
+.tag{font-size:12px;color:var(--cyan);text-transform:uppercase}
+.content h3{margin:10px 0}
+.description{color:var(--muted);font-size:14px;line-height:1.7}
+.prompt{background:#0c1020;padding:12px;border-radius:9px;font-size:13px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;max-height:120px;overflow:auto;margin:13px 0}
+.actions{display:flex;gap:8px}
+.actions button{flex:1;padding:10px;font-size:13px}
+.secondary{background:#252c43}
+footer{text-align:center;padding:35px;color:var(--muted)}
+dialog{width:min(520px,92%);background:#131729;color:white;border:1px solid #414663;border-radius:16px;padding:23px}
+dialog::backdrop{background:#000b}
+dialog input,dialog select,dialog textarea{width:100%;padding:12px;margin:8px 0 14px;background:#0b1020;border:1px solid #363c55;border-radius:8px;color:white}
+dialog textarea{min-height:130px}
+.form-actions{display:flex;gap:10px}
+.empty{color:var(--muted);padding:35px 0;text-align:center}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.hero{padding-top:43px}.preview{height:210px}.logo{font-size:19px}header{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">PromptVerse <span>AI ✦</span></div>
+  <button id="addTop">＋ Add Prompt</button>
+</header>
+<section class="hero">
+  <div class="tag">YOUR AI CREATIVE HUB</div>
+  <h1>Discover <span class="gradient">Trending Prompts</span></h1>
+  <p>Copy a prompt. Paste into your favorite AI. Create something amazing.</p>
+  <p>ফটো ও ভিডিও তৈরির সেরা AI Prompt এখন এক জায়গায়!</p>
+</section>
+<main class="wrap">
+  <input class="search" id="search" placeholder="🔎 Prompt, ক্যাটাগরি বা নাম দিয়ে খুঁজুন...">
+  <div class="filters" id="filters">
+    <button class="active" data-type="All">🌟 সব Prompt</button>
+    <button data-type="Photo">📸 AI Photo</button>
+    <button data-type="Video">🎬 AI Video</button>
+  </div>
+  <div class="heading"><h2>🔥 Trending Prompts</h2><span class="tag" id="count"></span></div>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>
+  <div class="logo">PromptVerse <span>AI ✦</span></div>
+  <p>Discover • Copy • Create</p>
+  <small>Prompts may work differently across AI tools.</small>
+</footer>
+<dialog id="modal">
+  <h2>＋ নতুন Prompt যোগ করুন</h2>
+  <form id="form">
+    <label>Prompt-এর নাম</label>
+    <input name="title" required maxlength="100" placeholder="যেমন: Cinematic Portrait">
+    <label>ক্যাটাগরি</label>
+    <select name="type"><option value="Photo">AI Photo</option><option value="Video">AI Video</option></select>
+    <label>সংক্ষিপ্ত বর্ণনা</label>
+    <input name="description" placeholder="এই Prompt কী তৈরি করবে?">
+    <label>Prompt-এর সম্পূর্ণ লেখা</label>
+    <textarea name="prompt" required placeholder="এখানে তোমার AI prompt লিখো..."></textarea>
+    <label>নমুনা ছবির URL (ঐচ্ছিক)</label>
+    <input name="image" type="url" placeholder="https://example.com/image.jpg">
+    <div class="form-actions"><button type="submit">Save Prompt</button><button type="button" class="secondary" id="cancel">Cancel</button></div>
+  </form>
+</dialog>
+<script>
+const starter = [
+ {id:1,title:"Cinematic AI Portrait",type:"Photo",description:"Professional cinematic portrait photography.",prompt:"Create a cinematic, photorealistic portrait with dramatic soft lighting, detailed textures, natural skin tones, shallow depth of field, 85mm lens look, elegant background and professional color grading. Use the uploaded reference photo to preserve the subject's identity.",icon:"📸"},
+ {id:2,title:"Luxury Fashion Editorial",type:"Photo",description:"High-end fashion magazine style.",prompt:"Create a premium fashion editorial photograph using the uploaded reference image. Elegant outfit, sophisticated studio lighting, realistic fabric textures, luxury editorial composition, sharp focus, natural proportions and professional photography.",icon:"✨"},
+ {id:3,title:"Cinematic Travel Video",type:"Video",description:"Beautiful cinematic travel footage.",prompt:"Create a cinematic travel video of a beautiful landscape at golden hour. Smooth camera movement, realistic environmental details, atmospheric lighting, wide establishing shot, gentle motion, natural colors and film-quality composition. Duration and aspect ratio according to the selected video tool.",icon:"🎬"},
+ {id:4,title:"Viral Social Media Reel",type:"Video",description:"A dynamic vertical short-video concept.",prompt:"Create an engaging vertical 9:16 short video with a strong opening visual, smooth transitions, dynamic but natural camera movements, crisp details, balanced lighting and a satisfying ending. Keep the main subject consistent throughout the video.",icon:"📱"},
+ {id:5,title:"Fantasy World",type:"Photo",description:"Create an imaginative fantasy scene.",prompt:"Create a breathtaking fantasy landscape with towering ancient castles, glowing magical plants, misty mountains, atmospheric lighting, intricate details, cinematic composition and a richly immersive environment. High-quality digital art.",icon:"🌌"},
+ {id:6,title:"Product Commercial",type:"Video",description:"A polished product advertisement concept.",prompt:"Create a premium product advertisement video featuring the provided product. Use controlled studio lighting, elegant camera movements, close-up detail shots, realistic materials, clean composition and professional commercial color grading. Keep product shape and branding consistent.",icon:"💎"}
+];
+let prompts;
+try { prompts = JSON.parse(localStorage.getItem("pv-prompts")) || starter; } catch { prompts = starter; }
+let category = "All";
+const grid = document.getElementById("grid");
+const modal = document.getElementById("modal");
+const form = document.getElementById("form");
+function save() {
+  try { localStorage.setItem("pv-prompts", JSON.stringify(prompts)); }
+  catch { alert("Storage পূর্ণ হতে পারে। কিছু Prompt মুছে আবার চেষ্টা করুন।"); }
+}
+function safeImage(url) {
+  try { const parsed = new URL(url); return ["https:", "http:"].includes(parsed.protocol) ? parsed.href : ""; }
+  catch { return ""; }
+}
+function render() {
+  const q = document.getElementById("search").value.toLowerCase().trim();
+  const list = prompts.filter(p => (category === "All" || p.type === category) && [p.title,p.description,p.prompt,p.type].some(s => (s || "").toLowerCase().includes(q)));
+  document.getElementById("count").textContent = list.length + " PROMPTS";
+  grid.replaceChildren();
+  if (!list.length) { grid.innerHTML = '<div class="empty">কোনো Prompt পাওয়া যায়নি। অন্য শব্দ দিয়ে খুঁজুন।</div>'; return; }
+  list.forEach(p => {
+    const card = document.createElement("article"); card.className = "card";
+    const preview = document.createElement("div"); preview.className = "preview";
+    const imageUrl = safeImage(p.image || "");
+    if (imageUrl) {
+      const img = document.createElement("img"); img.src = imageUrl; img.alt = p.title; img.loading = "lazy";
+      img.onerror = () => { preview.textContent = p.icon || "✨"; }; preview.append(img);
+    } else preview.textContent = p.icon || "✨";
+    const content = document.createElement("div"); content.className = "content";
+    const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = p.type === "Photo" ? "📸 AI PHOTO" : "🎬 AI VIDEO";
+    const title = document.createElement("h3"); title.textContent = p.title;
+    const desc = document.createElement("p"); desc.className = "description"; desc.textContent = p.description || "AI creative prompt";
+    const prompt = document.createElement("div"); prompt.className = "prompt"; prompt.textContent = p.prompt;
+    const actions = document.createElement("div"); actions.className = "actions";
+    const copy = document.createElement("button"); copy.textContent = "📋 Copy Prompt";
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(p.prompt); copy.textContent = "✓ Copied!"; }
+      catch {
+        const area = document.createElement("textarea"); area.value = p.prompt; document.body.append(area); area.select();
+        const ok = document.execCommand("copy"); area.remove(); copy.textContent = ok ? "✓ Copied!" : "Prompt সিলেক্ট করে কপি করুন";
+      }
+      setTimeout(() => copy.textContent = "📋 Copy Prompt", 1800);
+    };
+    actions.append(copy); content.append(tag,title,desc,prompt,actions); card.append(preview,content); grid.append(card);
+  });
+}
+function openModal() { form.reset(); modal.showModal(); }
+document.getElementById("addTop").onclick = openModal;
+document.getElementById("cancel").onclick = () => modal.close();
+document.getElementById("search").addEventListener("input",render);
+document.querySelectorAll(".filters button").forEach(button => {
+  button.onclick = () => {
+    category = button.dataset.type;
+    document.querySelectorAll(".filters button").forEach(b => b.classList.toggle("active", b === button));
+    render();
+  };
+});
+form.onsubmit = e => {
+  e.preventDefault();
+  const data = new FormData(form);
+  prompts.unshift({
+    id: Date.now(), title: String(data.get("title")).trim(), type: data.get("type"),
+    description: String(data.get("description")).trim(), prompt: String(data.get("prompt")).trim(),
+    image: safeImage(String(data.get("image") || "").trim()), icon: data.get("type") === "Photo" ? "📸" : "🎬"
+  });
+  save(); render(); modal.close();
+};
+render();
+</script>
+</body>
+</html>
