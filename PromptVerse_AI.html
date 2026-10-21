@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090b16">
 <title>PromptVerse AI | Trending Prompts</title>
+
+<!-- Monetag Ad SDK -->
+<script src='//libtl.com/sdk.js' data-zone='12090462' data-sdk='show_12090462'></script>
+
 <style>
 :root {
   --bg:#090b16; --panel:#131729; --purple:#8b5cf6;
@@ -138,14 +142,56 @@ function render() {
     const prompt = document.createElement("div"); prompt.className = "prompt"; prompt.textContent = p.prompt;
     const actions = document.createElement("div"); actions.className = "actions";
     const copy = document.createElement("button"); copy.textContent = "📋 Copy Prompt";
-    copy.onclick = async () => {
-      try { await navigator.clipboard.writeText(p.prompt); copy.textContent = "✓ Copied!"; }
-      catch {
-        const area = document.createElement("textarea"); area.value = p.prompt; document.body.append(area); area.select();
-        const ok = document.execCommand("copy"); area.remove(); copy.textContent = ok ? "✓ Copied!" : "Prompt সিলেক্ট করে কপি করুন";
+
+    copy.onclick = () => {
+      // ইউজার জেসচার পলিসি বজায় রাখতে তাৎক্ষণিক কপি
+      let preCopied = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(p.prompt).then(() => { preCopied = true; }).catch(() => {});
       }
-      setTimeout(() => copy.textContent = "📋 Copy Prompt", 1800);
+
+      const rewardUser = () => {
+        if (!preCopied) {
+          try {
+            navigator.clipboard.writeText(p.prompt).then(() => {
+              copy.textContent = "✓ Copied!";
+            }).catch(() => fallbackCopy(p.prompt));
+          } catch {
+            fallbackCopy(p.prompt);
+          }
+        } else {
+          copy.textContent = "✓ Copied!";
+        }
+        setTimeout(() => copy.textContent = "📋 Copy Prompt", 1800);
+      };
+
+      const fallbackCopy = (text) => {
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.append(area);
+        area.select();
+        const ok = document.execCommand("copy");
+        area.remove();
+        copy.textContent = ok ? "✓ Copied!" : "Prompt সিলেক্ট করে কপি করুন";
+      };
+
+      // Rewarded Popup SDK কল
+      if (typeof show_12090462 === "function") {
+        copy.textContent = "⏳ Ad Loading...";
+        show_12090462('pop').then(() => {
+          // ব্যবহারকারী সফলভাবে অ্যাড দেখলে বা শেষ করলে রিওয়ার্ড প্রদান
+          rewardUser();
+        }).catch(e => {
+          // অ্যাড চলাকালে কোনো ত্রুটি ঘটলেও ব্যবহারকারীকে প্রম্পট দেওয়া হবে
+          rewardUser();
+        });
+      } else {
+        rewardUser();
+      }
     };
+
     actions.append(copy); content.append(tag,title,desc,prompt,actions); card.append(preview,content); grid.append(card);
   });
 }
